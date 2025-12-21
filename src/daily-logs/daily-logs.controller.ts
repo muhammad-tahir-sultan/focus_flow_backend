@@ -22,4 +22,24 @@ export class DailyLogsController {
     getStats(@Request() req) {
         return this.dailyLogsService.getStats(req.user);
     }
+
+    @Get('analytics/streak')
+    getExecutionStreak(@Request() req) {
+        return this.dailyLogsService.getExecutionStreak(req.user);
+    }
+
+    @Get('analytics/time-invested')
+    getTimeInvested(@Request() req) {
+        return this.dailyLogsService.getTimeInvested(req.user);
+    }
+
+    @Get('analytics/non-negotiables')
+    getNonNegotiablesCompletion(@Request() req) {
+        return this.dailyLogsService.getNonNegotiablesCompletion(req.user);
+    }
+
+    @Get('analytics/consistency')
+    getConsistency(@Request() req) {
+        return this.dailyLogsService.getConsistency(req.user);
+    }
 }

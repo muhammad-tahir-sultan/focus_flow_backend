@@ -65,4 +65,134 @@ export class DailyLogsService {
             streak: 0, // TODO: Implement robust streak logic
         };
     }
+
+    async getExecutionStreak(user: User): Promise<{ date: string; value: number }[]> {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+        const logs = await this.dailyLogModel.find({
+            user: user['_id'],
+            date: { $gte: thirtyDaysAgo },
+        }).exec();
+
+        // Create a map of dates that have logs
+        const logDates = new Set(
+            logs.map(log => {
+                const d = new Date(log.date);
+                d.setHours(0, 0, 0, 0);
+                return d.toISOString().split('T')[0];
+            })
+        );
+
+        // Generate last 30 days
+        const result: { date: string; value: number }[] = [];
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
+            const dateStr = date.toISOString().split('T')[0];
+            result.push({
+                date: dateStr,
+                value: logDates.has(dateStr) ? 1 : 0,
+            });
+        }
+
+        return result;
+    }
+
+    async getTimeInvested(user: User): Promise<{ date: string; value: number }[]> {
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+        fourteenDaysAgo.setHours(0, 0, 0, 0);
+
+        const logs = await this.dailyLogModel.find({
+            user: user['_id'],
+            date: { $gte: fourteenDaysAgo },
+        }).exec();
+
+        // Create a map of dates to time spent
+        const timeMap = new Map<string, number>();
+        logs.forEach(log => {
+            const d = new Date(log.date);
+            d.setHours(0, 0, 0, 0);
+            const dateStr = d.toISOString().split('T')[0];
+            timeMap.set(dateStr, (timeMap.get(dateStr) || 0) + log.timeSpent);
+        });
+
+        // Generate last 14 days
+        const result: { date: string; value: number }[] = [];
+        for (let i = 13; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
+            const dateStr = date.toISOString().split('T')[0];
+            result.push({
+                date: dateStr,
+                value: timeMap.get(dateStr) || 0,
+            });
+        }
+
+        return result;
+    }
+
+    async getNonNegotiablesCompletion(user: User): Promise<{ completedCount: number; totalCount: number }> {
+        const logs = await this.dailyLogModel.find({ user: user['_id'] }).exec();
+
+        // Count non-negotiables from descriptions
+        // Non-negotiables are marked with [x] in the description
+        let completedCount = 0;
+        let totalCount = 0;
+
+        logs.forEach(log => {
+            const description = log.description || '';
+            // Count [x] as completed
+            const completed = (description.match(/\[x\]/gi) || []).length;
+            // Count [ ] as incomplete
+            const incomplete = (description.match(/\[ \]/g) || []).length;
+
+            completedCount += completed;
+            totalCount += completed + incomplete;
+        });
+
+        return { completedCount, totalCount };
+    }
+
+    async getConsistency(user: User): Promise<{ week: number; value: number }[]> {
+        const twentySixWeeksAgo = new Date();
+        twentySixWeeksAgo.setDate(twentySixWeeksAgo.getDate() - (26 * 7));
+        twentySixWeeksAgo.setHours(0, 0, 0, 0);
+
+        const logs = await this.dailyLogModel.find({
+            user: user['_id'],
+            date: { $gte: twentySixWeeksAgo },
+        }).exec();
+
+        // Group logs by week
+        const weekMap = new Map<number, Set<string>>();
+        logs.forEach(log => {
+            const logDate = new Date(log.date);
+            const weeksDiff = Math.floor((new Date().getTime() - logDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+            const weekNumber = 25 - weeksDiff; // 0-25 (26 weeks)
+
+            if (weekNumber >= 0 && weekNumber < 26) {
+                if (!weekMap.has(weekNumber)) {
+                    weekMap.set(weekNumber, new Set());
+                }
+                const dateStr = logDate.toISOString().split('T')[0];
+                weekMap.get(weekNumber)!.add(dateStr);
+            }
+        });
+
+        // Generate result for 26 weeks
+        const result: { week: number; value: number }[] = [];
+        for (let i = 0; i < 26; i++) {
+            result.push({
+                week: i + 1,
+                value: weekMap.get(i)?.size || 0,
+            });
+        }
+
+        return result;
+    }
 }
