@@ -195,4 +195,32 @@ export class DailyLogsService {
 
         return result;
     }
+
+    async findOne(id: string, user: User): Promise<DailyLog> {
+        const log = await this.dailyLogModel.findOne({ _id: id, user: user['_id'] }).exec();
+        if (!log) {
+            throw new NotFoundException(`Daily log with ID ${id} not found`);
+        }
+        return log;
+    }
+
+    async update(id: string, updateDailyLogDto: any, user: User): Promise<DailyLog> {
+        const updatedLog = await this.dailyLogModel.findOneAndUpdate(
+            { _id: id, user: user['_id'] },
+            { $set: updateDailyLogDto },
+            { new: true }
+        ).exec();
+
+        if (!updatedLog) {
+            throw new NotFoundException(`Daily log with ID ${id} not found`);
+        }
+        return updatedLog;
+    }
+
+    async remove(id: string, user: User): Promise<void> {
+        const result = await this.dailyLogModel.deleteOne({ _id: id, user: user['_id'] }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`Daily log with ID ${id} not found`);
+        }
+    }
 }

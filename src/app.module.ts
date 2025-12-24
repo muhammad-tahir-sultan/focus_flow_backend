@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { GoalsModule } from './goals/goals.module';
 import { DailyLogsModule } from './daily-logs/daily-logs.module';
+import { RoadmapsModule } from './roadmaps/roadmaps.module';
+import { TechnicalRoadmapModule } from './technical-roadmap/technical-roadmap.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -23,6 +25,8 @@ import { AppService } from './app.service';
     AuthModule,
     GoalsModule,
     DailyLogsModule,
+    RoadmapsModule,
+    TechnicalRoadmapModule,
   ],
   controllers: [AppController],
   providers: [AppService],

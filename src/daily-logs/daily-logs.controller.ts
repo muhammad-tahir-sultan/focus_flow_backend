@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param, Delete } from '@nestjs/common';
 import { DailyLogsService } from './daily-logs.service';
 import { CreateDailyLogDto } from './dto/create-daily-log.dto';
+import { UpdateDailyLogDto } from './dto/update-daily-log.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('daily-logs')
@@ -21,6 +22,21 @@ export class DailyLogsController {
     @Get('stats')
     getStats(@Request() req) {
         return this.dailyLogsService.getStats(req.user);
+    }
+
+    @Get(':id')
+    findOne(@Param('id') id: string, @Request() req) {
+        return this.dailyLogsService.findOne(id, req.user);
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateDailyLogDto: UpdateDailyLogDto, @Request() req) {
+        return this.dailyLogsService.update(id, updateDailyLogDto, req.user);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string, @Request() req) {
+        return this.dailyLogsService.remove(id, req.user);
     }
 
     @Get('analytics/streak')
