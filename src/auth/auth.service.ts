@@ -39,7 +39,12 @@ export class AuthService {
 
         await user.save();
 
-        const token = this.jwtService.sign({ id: user._id });
+        const token = this.jwtService.sign({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        });
         return { token };
     }
 
@@ -56,7 +61,12 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const token = this.jwtService.sign({ id: user._id });
+        const token = this.jwtService.sign({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        });
         return { token };
     }
 }
