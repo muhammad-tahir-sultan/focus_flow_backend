@@ -10,27 +10,28 @@ export class DailyLogsService {
     constructor(@InjectModel(DailyLog.name) private dailyLogModel: Model<DailyLogDocument>) { }
 
     async create(createDailyLogDto: CreateDailyLogDto, user: User): Promise<DailyLog> {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Use provided date or default to today
+        const logDate = createDailyLogDto.date ? new Date(createDailyLogDto.date) : new Date();
+        logDate.setHours(0, 0, 0, 0);
 
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        const nextDay = new Date(logDate);
+        nextDay.setDate(nextDay.getDate() + 1);
 
         const existingLog = await this.dailyLogModel.findOne({
             user: user['_id'],
             date: {
-                $gte: today,
-                $lt: tomorrow,
+                $gte: logDate,
+                $lt: nextDay,
             },
         });
 
         if (existingLog) {
-            throw new BadRequestException('You have already submitted your daily log for today.');
+            throw new BadRequestException('A log already exists for this date. You can only have one log per day.');
         }
 
         const createdLog = new this.dailyLogModel({
             ...createDailyLogDto,
-            date: new Date(),
+            date: logDate,
             user,
         });
         return createdLog.save();
@@ -205,6 +206,31 @@ export class DailyLogsService {
     }
 
     async update(id: string, updateDailyLogDto: any, user: User): Promise<DailyLog> {
+        // If date is being updated, check for conflicts
+        if (updateDailyLogDto.date) {
+            const logDate = new Date(updateDailyLogDto.date);
+            logDate.setHours(0, 0, 0, 0);
+
+            const nextDay = new Date(logDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            const existingLog = await this.dailyLogModel.findOne({
+                user: user['_id'],
+                _id: { $ne: id }, // Exclude the current log being updated
+                date: {
+                    $gte: logDate,
+                    $lt: nextDay,
+                },
+            });
+
+            if (existingLog) {
+                throw new BadRequestException('A log already exists for this date. You can only have one log per day.');
+            }
+
+            // Ensure the date is stored correctly
+            updateDailyLogDto.date = logDate;
+        }
+
         const updatedLog = await this.dailyLogModel.findOneAndUpdate(
             { _id: id, user: user['_id'] },
             { $set: updateDailyLogDto },

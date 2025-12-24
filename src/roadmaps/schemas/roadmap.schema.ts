@@ -11,6 +11,9 @@ export class Roadmap {
     @Prop({ required: true })
     description: string;
 
+    @Prop({ type: String, default: '' })
+    content: string; // Rich text content for detailed blog-type content
+
     @Prop({ required: true })
     category: string; // e.g., 'Frontend', 'Backend', 'DevOps'
 

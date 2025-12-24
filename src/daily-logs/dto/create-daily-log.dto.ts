@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateDailyLogDto {
     @IsNotEmpty()
@@ -12,4 +12,8 @@ export class CreateDailyLogDto {
     @IsNotEmpty()
     @IsString()
     reflection: string;
+
+    @IsOptional()
+    @IsDateString()
+    date?: string;
 }
