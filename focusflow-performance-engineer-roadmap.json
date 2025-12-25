@@ -1,0 +1,163 @@
+{
+    "title": "Senior Backend Engineer Roadmap (Performance → Architecture)",
+    "description": "From performance engineering to system design mastery using NestJS, GraphQL, MongoDB",
+    "type": "ROADMAP",
+    "status": "ACTIVE",
+    "phases": [
+        {
+            "phase": 1,
+            "title": "Performance Engineer Foundation",
+            "duration": "2-3 Weeks",
+            "theme": "Fast, scalable, intelligent APIs",
+            "weeks": [
+                {
+                    "week": 1,
+                    "title": "N+1 Query Mastery",
+                    "tasks": [
+                        "Understand N+1 problem in GraphQL",
+                        "Identify N+1 queries in FocusFlow APIs",
+                        "Trace resolver execution flow",
+                        "Learn DataLoader fundamentals",
+                        "Implement request-scoped DataLoader in NestJS",
+                        "Verify batching behavior",
+                        "Compare API performance with vs without DataLoader"
+                    ],
+                    "outcome": "Able to explain and fix N+1 queries confidently"
+                },
+                {
+                    "week": 2,
+                    "title": "MongoDB Performance Engineering",
+                    "tasks": [
+                        "Understand MongoDB index internals (B-Tree)",
+                        "Learn single vs compound indexes",
+                        "Practice left-most index rule",
+                        "Create index on userId + createdAt",
+                        "Create index on email field",
+                        "Run explain() on slow queries",
+                        "Compare indexed vs non-indexed queries",
+                        "Identify when indexes hurt performance"
+                    ],
+                    "outcome": "Design queries based on MongoDB internals"
+                },
+                {
+                    "week": 3,
+                    "title": "API Optimization & Caching",
+                    "tasks": [
+                        "Learn GraphQL response shaping",
+                        "Analyze over-fetching and under-fetching",
+                        "Understand pagination performance trade-offs",
+                        "Implement Redis caching",
+                        "Cache read-heavy queries",
+                        "Design cache invalidation strategy",
+                        "Measure API response time improvements"
+                    ],
+                    "outcome": "APIs are production-grade and optimized"
+                }
+            ]
+        },
+        {
+            "phase": 2,
+            "title": "Real-Time & Event-Driven Systems",
+            "duration": "2 Weeks",
+            "weeks": [
+                {
+                    "week": 4,
+                    "title": "GraphQL Subscriptions",
+                    "tasks": [
+                        "Understand Pub/Sub architecture",
+                        "Learn WebSockets vs polling",
+                        "Setup GraphQL subscriptions in NestJS",
+                        "Secure subscriptions with authentication",
+                        "Implement real-time notifications in FocusFlow",
+                        "Test with multiple concurrent clients"
+                    ],
+                    "outcome": "Clean real-time GraphQL implementations"
+                },
+                {
+                    "week": 5,
+                    "title": "Event-Driven Architecture",
+                    "tasks": [
+                        "Understand events vs direct service calls",
+                        "Learn domain events",
+                        "Use EventEmitter in NestJS",
+                        "Refactor one sync flow into event-based",
+                        "Learn async background processing concepts",
+                        "Identify scalability improvements using events"
+                    ],
+                    "outcome": "Loosely coupled, scalable backend systems"
+                }
+            ]
+        },
+        {
+            "phase": 3,
+            "title": "Clean Architecture & Code Excellence",
+            "duration": "2-3 Weeks",
+            "weeks": [
+                {
+                    "week": 6,
+                    "title": "Clean Architecture in NestJS",
+                    "tasks": [
+                        "Refactor modules into domain-based structure",
+                        "Separate controllers, services, and use-cases",
+                        "Understand DTO vs Entity boundaries",
+                        "Refactor fat services",
+                        "Apply clean architecture to FocusFlow"
+                    ],
+                    "outcome": "Maintainable and scalable codebase"
+                },
+                {
+                    "week": 7,
+                    "title": "Advanced TypeScript Mastery",
+                    "tasks": [
+                        "Master generics",
+                        "Use utility types effectively",
+                        "Practice mapped types",
+                        "Improve GraphQL type safety",
+                        "Remove any from critical paths"
+                    ],
+                    "outcome": "TypeScript as a productivity weapon"
+                }
+            ]
+        },
+        {
+            "phase": 4,
+            "title": "Testing & Reliability",
+            "duration": "1-2 Weeks",
+            "weeks": [
+                {
+                    "week": 8,
+                    "title": "Professional Testing",
+                    "tasks": [
+                        "Understand testing pyramid",
+                        "Write unit tests for services",
+                        "Test GraphQL resolvers",
+                        "Setup integration tests",
+                        "Mock MongoDB properly",
+                        "Create test data factories"
+                    ],
+                    "outcome": "Fearless deployments"
+                }
+            ]
+        },
+        {
+            "phase": 5,
+            "title": "System Design & Interview Readiness",
+            "duration": "Ongoing",
+            "weeks": [
+                {
+                    "week": "Weekly",
+                    "title": "System Design Practice",
+                    "tasks": [
+                        "Design one backend system per week",
+                        "Explain GraphQL scaling strategies",
+                        "Explain caching layers",
+                        "Practice database scaling answers",
+                        "Speak answers out loud",
+                        "Document learnings"
+                    ],
+                    "outcome": "Senior-level system thinking"
+                }
+            ]
+        }
+    ]
+}

@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['https://focus-flow-tracker.vercel.app', 'http://localhost:5173'],
+    origin: ['https://focus-flow-tracker.vercel.app', 'http://localhost:5173', 'http://localhost:5174'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
