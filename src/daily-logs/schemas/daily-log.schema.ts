@@ -18,6 +18,15 @@ export class DailyLog {
     @Prop({ required: true })
     date: Date;
 
+    @Prop({ type: String, enum: ['high', 'neutral', 'good', 'low'], default: 'neutral' })
+    mood: string;
+
+    @Prop({ default: false })
+    isFavorite: boolean;
+
+    @Prop([String])
+    tags: string[];
+
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
     user: User;
 }

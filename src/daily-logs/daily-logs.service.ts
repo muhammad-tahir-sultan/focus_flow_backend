@@ -37,33 +37,100 @@ export class DailyLogsService {
         return createdLog.save();
     }
 
-    async findAll(user: User): Promise<DailyLog[]> {
-        return this.dailyLogModel.find({ user: user['_id'] }).sort({ date: -1 }).exec();
+    async findAll(user: User, filters?: {
+        mood?: string,
+        startDate?: string,
+        endDate?: string,
+        isFavorite?: boolean
+    }): Promise<DailyLog[]> {
+        const query: any = { user: user['_id'] };
+
+        if (filters?.mood && filters.mood !== 'all') {
+            query.mood = filters.mood;
+        }
+
+        if (filters?.isFavorite !== undefined) {
+            query.isFavorite = filters.isFavorite;
+        }
+
+        if (filters?.startDate || filters?.endDate) {
+            query.date = {};
+            if (filters.startDate) {
+                const start = new Date(filters.startDate);
+                start.setHours(0, 0, 0, 0);
+                query.date.$gte = start;
+            }
+            if (filters.endDate) {
+                const end = new Date(filters.endDate);
+                end.setHours(23, 59, 59, 999);
+                query.date.$lte = end;
+            }
+        }
+
+        return this.dailyLogModel.find(query).sort({ date: -1 }).exec();
     }
 
     async getStats(user: User): Promise<any> {
         const logs = await this.dailyLogModel.find({ user: user['_id'] }).sort({ date: -1 }).exec();
 
-        // Calculate streak
+        if (logs.length === 0) {
+            return {
+                totalLogs: 0,
+                streak: 0,
+                avgFocus: 0,
+                improvement: 0
+            };
+        }
+
+        // 1. Calculate Streak
         let streak = 0;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Check if logged today
-        const loggedToday = logs.length > 0 && logs[0].date >= today;
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
 
-        // If logged today, streak starts at 1. If not, check yesterday.
-        // Actually, simple logic: iterate backwards from today (or yesterday if missed today)
+        // Get unique dates
+        const logDates = new Set(logs.map(log => {
+            const d = new Date(log.date);
+            d.setHours(0, 0, 0, 0);
+            return d.getTime();
+        }));
 
-        // Simplified streak logic:
-        // 1. Get all unique dates logged
-        // 2. Check consecutive days
+        let checkDate = logDates.has(today.getTime()) ? today : yesterday;
 
-        // For now, return simple count and last log date
+        while (logDates.has(checkDate.getTime())) {
+            streak++;
+            checkDate = new Date(checkDate);
+            checkDate.setDate(checkDate.getDate() - 1);
+        }
+
+        // 2. Calculate Avg Focus (last 30 days vs previous 30 days)
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const sixtyDaysAgo = new Date(today);
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+        const recentLogs = logs.filter(l => new Date(l.date) >= thirtyDaysAgo);
+        const previousLogs = logs.filter(l => new Date(l.date) >= sixtyDaysAgo && new Date(l.date) < thirtyDaysAgo);
+
+        const avgFocus = recentLogs.length > 0
+            ? recentLogs.reduce((sum, l) => sum + l.timeSpent, 0) / recentLogs.length
+            : 0;
+
+        const prevAvgFocus = previousLogs.length > 0
+            ? previousLogs.reduce((sum, l) => sum + l.timeSpent, 0) / previousLogs.length
+            : 0;
+
+        const improvement = avgFocus - prevAvgFocus;
+
         return {
             totalLogs: logs.length,
-            lastLogDate: logs.length > 0 ? logs[0].date : null,
-            streak: 0, // TODO: Implement robust streak logic
+            streak,
+            avgFocus: Number(avgFocus.toFixed(1)),
+            improvement: Number(improvement.toFixed(1)),
+            lastLogDate: logs[0].date
         };
     }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param, Delete, Query } from '@nestjs/common';
 import { DailyLogsService } from './daily-logs.service';
 import { CreateDailyLogDto } from './dto/create-daily-log.dto';
 import { UpdateDailyLogDto } from './dto/update-daily-log.dto';
@@ -15,8 +15,19 @@ export class DailyLogsController {
     }
 
     @Get()
-    findAll(@Request() req) {
-        return this.dailyLogsService.findAll(req.user);
+    findAll(
+        @Request() req,
+        @Query('mood') mood?: string,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('isFavorite') isFavorite?: string
+    ) {
+        return this.dailyLogsService.findAll(req.user, {
+            mood,
+            startDate,
+            endDate,
+            isFavorite: isFavorite === 'true' ? true : isFavorite === 'false' ? false : undefined
+        });
     }
 
     @Get('stats')

@@ -16,4 +16,15 @@ export class CreateDailyLogDto {
     @IsOptional()
     @IsDateString()
     date?: string;
+
+    @IsOptional()
+    @IsString()
+    mood?: string;
+
+    @IsOptional()
+    @IsString({ each: true })
+    tags?: string[];
+
+    @IsOptional()
+    isFavorite?: boolean;
 }
