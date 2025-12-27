@@ -78,7 +78,8 @@ export class DailyLogsService {
                 totalLogs: 0,
                 streak: 0,
                 avgFocus: 0,
-                improvement: 0
+                improvement: 0,
+                totalTime: 0
             };
         }
 
@@ -125,11 +126,14 @@ export class DailyLogsService {
 
         const improvement = avgFocus - prevAvgFocus;
 
+        const totalTime = logs.reduce((sum, l) => sum + (l.timeSpent || 0), 0);
+
         return {
             totalLogs: logs.length,
             streak,
             avgFocus: Number(avgFocus.toFixed(1)),
             improvement: Number(improvement.toFixed(1)),
+            totalTime,
             lastLogDate: logs[0].date
         };
     }
