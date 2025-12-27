@@ -49,6 +49,9 @@ export class Goal {
     @Prop({ required: true, enum: GoalStatus, default: GoalStatus.ACTIVE })
     status: string;
 
+    @Prop()
+    dropReason?: string;
+
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
     user: User;
 }

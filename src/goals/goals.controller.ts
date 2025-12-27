@@ -24,7 +24,11 @@ export class GoalsController {
     }
 
     @Patch(':id/status')
-    updateStatus(@Param('id') id: string, @Body('status') status: string, @Request() req) {
-        return this.goalsService.updateStatus(id, status, req.user);
+    updateStatus(
+        @Param('id') id: string,
+        @Body() body: { status: string; dropReason?: string },
+        @Request() req
+    ) {
+        return this.goalsService.updateStatus(id, body.status, req.user, body.dropReason);
     }
 }

@@ -64,10 +64,13 @@ export class GoalsService {
         return goal;
     }
 
-    async updateStatus(id: string, status: string, user: User): Promise<Goal> {
+    async updateStatus(id: string, status: string, user: User, dropReason?: string): Promise<Goal> {
+        const update: any = { status };
+        if (dropReason !== undefined) update.dropReason = dropReason;
+
         const goal = await this.goalModel.findOneAndUpdate(
             { _id: id, user: user['_id'] },
-            { status },
+            update,
             { new: true },
         ).exec();
 
