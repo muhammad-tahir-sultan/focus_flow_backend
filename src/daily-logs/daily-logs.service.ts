@@ -1,18 +1,31 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DailyLog, DailyLogDocument } from './schemas/daily-log.schema';
 import { CreateDailyLogDto } from './dto/create-daily-log.dto';
 import { User } from '../users/schemas/user.schema';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class DailyLogsService {
-    constructor(@InjectModel(DailyLog.name) private dailyLogModel: Model<DailyLogDocument>) { }
+    constructor(
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        @InjectModel(DailyLog.name) private dailyLogModel: Model<DailyLogDocument>,
+    ) { }
+
 
     async create(createDailyLogDto: CreateDailyLogDto, user: User): Promise<DailyLog> {
         // Use provided date or default to today
         const logDate = createDailyLogDto.date ? new Date(createDailyLogDto.date) : new Date();
         logDate.setHours(0, 0, 0, 0);
+
+        const cacheKey = `daily_log_${user.email}_${logDate.getTime()}`;
+
+        const cachedLog = await this.cacheManager.get(cacheKey);
+        if (cachedLog) {
+            throw new BadRequestException('A log already exists for this date (Cached).');
+        }
 
         const nextDay = new Date(logDate);
         nextDay.setDate(nextDay.getDate() + 1);
@@ -26,6 +39,7 @@ export class DailyLogsService {
         });
 
         if (existingLog) {
+            await this.cacheManager.set(cacheKey, true, 3600000);
             throw new BadRequestException('A log already exists for this date. You can only have one log per day.');
         }
 
@@ -34,6 +48,15 @@ export class DailyLogsService {
             date: logDate,
             user,
         });
+
+
+        const savedLog = await createdLog.save();
+
+        await this.cacheManager.set(cacheKey, savedLog, 86400000)
+
+        await this.cacheManager.del(`latest_logs_${user.email}`);
+
+
         return createdLog.save();
     }
 
