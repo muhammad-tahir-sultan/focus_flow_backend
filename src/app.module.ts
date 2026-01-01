@@ -7,7 +7,6 @@ import { DailyLogsModule } from './daily-logs/daily-logs.module';
 import { RoadmapsModule } from './roadmaps/roadmaps.module';
 import { TechnicalRoadmapModule } from './technical-roadmap/technical-roadmap.module';
 import { AppController } from './app.controller';
-import { CacheModule } from '@nestjs/cache-manager';
 import { AppService } from './app.service';
 
 @Module({
@@ -16,7 +15,6 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    CacheModule.register(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
