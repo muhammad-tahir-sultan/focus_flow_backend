@@ -6,6 +6,7 @@ import { GoalsModule } from './goals/goals.module';
 import { DailyLogsModule } from './daily-logs/daily-logs.module';
 import { RoadmapsModule } from './roadmaps/roadmaps.module';
 import { TechnicalRoadmapModule } from './technical-roadmap/technical-roadmap.module';
+import { SkillsModule } from './skills/skills.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -27,6 +28,7 @@ import { AppService } from './app.service';
     DailyLogsModule,
     RoadmapsModule,
     TechnicalRoadmapModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
