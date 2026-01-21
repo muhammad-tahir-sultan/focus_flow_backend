@@ -7,6 +7,9 @@ import { DailyLogsModule } from './daily-logs/daily-logs.module';
 import { RoadmapsModule } from './roadmaps/roadmaps.module';
 import { TechnicalRoadmapModule } from './technical-roadmap/technical-roadmap.module';
 import { SkillsModule } from './skills/skills.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { IncomeModule } from './income/income.module';
+import { SavingsModule } from './savings/savings.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -29,6 +32,9 @@ import { AppService } from './app.service';
     RoadmapsModule,
     TechnicalRoadmapModule,
     SkillsModule,
+    ExpensesModule,
+    IncomeModule,
+    SavingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
