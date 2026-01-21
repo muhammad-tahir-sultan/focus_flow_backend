@@ -10,6 +10,7 @@ import { SkillsModule } from './skills/skills.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { IncomeModule } from './income/income.module';
 import { SavingsModule } from './savings/savings.module';
+import { LoansModule } from './loans/loans.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     ExpensesModule,
     IncomeModule,
     SavingsModule,
+    LoansModule,
   ],
   controllers: [AppController],
   providers: [AppService],
