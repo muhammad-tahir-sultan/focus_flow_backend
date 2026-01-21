@@ -17,7 +17,7 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto): Promise<{ accessToken: string; refreshToken: string }> {
-        const { name, email, password } = registerDto;
+        const { name, email, password, role } = registerDto;
 
         const existingUser = await this.userModel.findOne({ email });
         if (existingUser) {
@@ -28,6 +28,7 @@ export class AuthService {
             name,
             email,
             passwordHash: password,
+            role: role || 'user', // Default to 'user' if not provided
         });
 
         await user.save();
