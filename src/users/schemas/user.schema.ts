@@ -20,6 +20,9 @@ export class User {
 
     @Prop({ required: false })
     refreshToken?: string;
+
+    @Prop({ type: [String], default: [] })
+    dailyChecklist: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
