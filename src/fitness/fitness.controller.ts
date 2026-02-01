@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { FitnessService } from './fitness.service';
 import { CreateFitnessLogDto } from './dto/create-fitness-log.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('fitness')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 export class FitnessController {
     constructor(private readonly fitnessService: FitnessService) { }
 
