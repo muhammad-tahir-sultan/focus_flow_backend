@@ -11,8 +11,10 @@ import { ExpensesModule } from './expenses/expenses.module';
 import { IncomeModule } from './income/income.module';
 import { SavingsModule } from './savings/savings.module';
 import { LoansModule } from './loans/loans.module';
+
 import { IdentityLogsModule } from './identity-logs/identity-logs.module';
 import { UsersModule } from './users/users.module';
+import { FitnessModule } from './fitness/fitness.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -41,6 +43,7 @@ import { AppService } from './app.service';
     LoansModule,
     IdentityLogsModule,
     UsersModule,
+    FitnessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
