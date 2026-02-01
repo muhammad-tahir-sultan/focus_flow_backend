@@ -13,10 +13,11 @@ export class FitnessService {
 
     async upsertLog(userId: string, createFitnessLogDto: CreateFitnessLogDto) {
         const { date, ...updateData } = createFitnessLogDto;
+        const userObjectId = new Types.ObjectId(userId);
 
         return this.fitnessLogModel.findOneAndUpdate(
-            { userId: new Types.ObjectId(userId), date },
-            { $set: updateData },
+            { userId: userObjectId, date },
+            { $set: { ...updateData, userId: userObjectId, date } },
             { new: true, upsert: true, setDefaultsOnInsert: true },
         );
     }
