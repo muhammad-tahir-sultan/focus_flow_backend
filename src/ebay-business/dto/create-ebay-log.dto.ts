@@ -20,6 +20,10 @@ export class CreateEbayLogDto {
 
     @IsString()
     blockerOrLesson: string;
+
+    @IsNumber()
+    @IsOptional()
+    outreachCount: number;
 }
 
 export class UpdateEbayLogDto extends CreateEbayLogDto { }

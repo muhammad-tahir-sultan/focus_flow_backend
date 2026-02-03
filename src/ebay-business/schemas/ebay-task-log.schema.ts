@@ -25,6 +25,9 @@ export class EbayTaskLog {
 
     @Prop({ default: '' })
     blockerOrLesson: string;
+
+    @Prop({ required: true, default: 0 })
+    outreachCount: number;
 }
 
 export const EbayTaskLogSchema = SchemaFactory.createForClass(EbayTaskLog);
