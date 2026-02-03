@@ -10,16 +10,22 @@ export class FitnessController {
 
     @Post('log')
     async logDaily(@Req() req, @Body() createFitnessLogDto: CreateFitnessLogDto) {
-        return this.fitnessService.upsertLog(req.user.userId, createFitnessLogDto);
+        return this.fitnessService.upsertLog(req.user._id.toString(), createFitnessLogDto);
     }
 
     @Get('today')
     async getToday(@Req() req, @Query('date') date: string) {
-        return this.fitnessService.getLogByDate(req.user.userId, date);
+        return this.fitnessService.getLogByDate(req.user._id.toString(), date);
     }
 
     @Get('stats')
     async getStats(@Req() req) {
-        return this.fitnessService.getStats(req.user.userId);
+        return this.fitnessService.getStats(req.user._id.toString());
+    }
+
+    // Debug endpoint - remove in production
+    @Get('debug/all')
+    async getAllForDebug(@Req() req) {
+        return this.fitnessService.getAllLogs(req.user._id.toString());
     }
 }

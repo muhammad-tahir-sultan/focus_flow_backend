@@ -34,8 +34,10 @@ export class FitnessService {
     }
 
     async getStats(userId: string) {
+        const userObjectId = new Types.ObjectId(userId);
+
         const logs = await this.fitnessLogModel.find({
-            userId: new Types.ObjectId(userId),
+            userId: userObjectId,
         }).sort({ date: 1 });
 
         const totalLogs = logs.length;
@@ -47,7 +49,7 @@ export class FitnessService {
         // Simple consistency (last 30 days)
         // In a real app, generate all dates for last 30 days and map.
 
-        return {
+        const result = {
             totalLogs,
             workouts,
             runs,
@@ -55,5 +57,7 @@ export class FitnessService {
             sleep,
             logs // Return logs for frontend to chart
         };
+
+        return result;
     }
 }
