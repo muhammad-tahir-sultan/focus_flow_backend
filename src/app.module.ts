@@ -15,6 +15,7 @@ import { LoansModule } from './loans/loans.module';
 import { IdentityLogsModule } from './identity-logs/identity-logs.module';
 import { UsersModule } from './users/users.module';
 import { FitnessModule } from './fitness/fitness.module';
+import { EbayBusinessModule } from './ebay-business/ebay-business.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -44,6 +45,7 @@ import { AppService } from './app.service';
     IdentityLogsModule,
     UsersModule,
     FitnessModule,
+    EbayBusinessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
