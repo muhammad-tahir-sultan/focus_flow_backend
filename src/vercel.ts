@@ -14,9 +14,10 @@ async function bootstrapServer() {
             new ExpressAdapter(expressApp),
         );
         app.enableCors({
-            origin: ['https://focus-flow-tracker.vercel.app', 'http://localhost:5173'],
+            origin: true,
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
+            allowedHeaders: 'Content-Type,Accept,Authorization,X-Requested-With',
         });
         app.useGlobalPipes(new ValidationPipe());
         await app.init();
