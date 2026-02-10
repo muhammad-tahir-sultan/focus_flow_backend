@@ -18,16 +18,11 @@ export class AiToolService {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are an expert business consultant and technical architect. Your job is to analyze client requirements and generate a structured proposal and an invoice draft.',
+                    content: 'You are an expert business consultant. Analyze requirements and return a JSON object with the following structure: { "projectName": string, "summary": string, "clientName": string, "companyName": string, "companyRole": string, "proposal": { "objectives": string[], "scope": string[], "timeline": string, "deliverables": string[] }, "invoice": { "invoiceNumber": string, "date": string, "items": Array<{ "description": string, "hours": number, "rate": number, "total": number }>, "grandTotal": number }, "notes": string }. Return ONLY JSON.',
                 },
                 {
                     role: 'user',
-                    content: `Analyze the following client requirement and provide:
-1. A brief summary of the project.
-2. A detailed proposal (objectives, scope, timeline, deliverables).
-3. An itemized invoice draft (description of services, estimated hours, rate, and total).
-
-Requirement: ${requirement}`,
+                    content: `Client Requirement: ${requirement}`,
                 },
             ],
             response_format: { type: 'json_object' },
