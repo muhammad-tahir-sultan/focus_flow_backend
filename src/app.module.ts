@@ -19,6 +19,7 @@ import { EbayBusinessModule } from './ebay-business/ebay-business.module';
 import { AiToolModule } from './ai-tool/ai-tool.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ChallengeModule } from './challenge/challenge.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AppService } from './app.service';
     FitnessModule,
     EbayBusinessModule,
     AiToolModule,
+    ChallengeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
