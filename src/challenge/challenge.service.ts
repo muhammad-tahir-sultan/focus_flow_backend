@@ -73,15 +73,22 @@ export class ChallengeService {
 
         const entry = await this.getTodayEntry(userId);
 
-        const logIndex = entry.taskLogs.findIndex(log => log.taskCode === taskCode);
+        // Pre-emptive deduplication: Ensure no existing duplicates before we even start
+        const uniqueLogsMap = new Map();
+        entry.taskLogs.forEach(log => {
+            uniqueLogsMap.set(log.taskCode, log);
+        });
 
-        if (logIndex > -1) {
-            entry.taskLogs[logIndex].completed = completed;
-            entry.taskLogs[logIndex].value = value;
-            entry.taskLogs[logIndex].note = note;
-        } else {
-            entry.taskLogs.push({ taskCode, completed, value, note });
-        }
+        // Update or add the new/existing task
+        uniqueLogsMap.set(taskCode, {
+            taskCode,
+            completed,
+            value: value || uniqueLogsMap.get(taskCode)?.value || '',
+            note: note || uniqueLogsMap.get(taskCode)?.note || ''
+        });
+
+        // Convert map back to array
+        entry.taskLogs = Array.from(uniqueLogsMap.values());
 
         const completedCount = entry.taskLogs.filter(log => log.completed).length;
         entry.isFullyCompleted = completedCount >= this.TOTAL_TASKS_COUNT;
