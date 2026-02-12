@@ -2,8 +2,9 @@ import { Injectable, UnauthorizedException, ConflictException, ForbiddenExceptio
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import { RefreshToken, RefreshTokenDocument } from './schemas/refresh-token.schema';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshTokenDocument>,
         private jwtService: JwtService,
         private configService: ConfigService,
     ) { }
@@ -28,7 +30,7 @@ export class AuthService {
             name,
             email,
             passwordHash: password,
-            role: role || 'user', // Default to 'user' if not provided
+            role: role || 'user',
         });
 
         await user.save();
@@ -41,21 +43,26 @@ export class AuthService {
     }
 
     async logout(userId: string) {
-        return this.userModel.findByIdAndUpdate(userId, { refreshToken: null });
+        // Remove all refresh tokens for this user on logout
+        return this.refreshTokenModel.deleteMany({ userId: new Types.ObjectId(userId) });
     }
 
     async refreshTokens(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+        // Find the token in our collection
+        const storedToken = await this.refreshTokenModel.findOne({ token: refreshToken });
+        if (!storedToken) {
+            throw new ForbiddenException('Invalid or expired refresh token');
+        }
+
         const userId = await this.verifyRefreshToken(refreshToken);
         const user = await this.userModel.findById(userId);
 
-        if (!user || !user.refreshToken) {
-            throw new ForbiddenException('Access Denied');
+        if (!user) {
+            throw new ForbiddenException('User not found');
         }
 
-        const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
-        if (!refreshTokenMatches) {
-            throw new ForbiddenException('Access Denied');
-        }
+        // Remove the old token after it's been used (rotating refresh tokens)
+        await this.refreshTokenModel.deleteOne({ _id: storedToken._id });
 
         return this.generateAndSaveTokens(user);
     }
@@ -87,13 +94,19 @@ export class AuthService {
 
     private async generateAndSaveTokens(user: UserDocument): Promise<{ accessToken: string; refreshToken: string }> {
         const tokens = await this.generateTokens(user._id.toString(), user.name, user.email, user.role);
-        await this.updateUserRefreshToken(user._id.toString(), tokens.refreshToken);
-        return tokens;
-    }
 
-    private async updateUserRefreshToken(userId: string, refreshToken: string) {
-        const hash = await bcrypt.hash(refreshToken, 10);
-        await this.userModel.findByIdAndUpdate(userId, { refreshToken: hash });
+        // Calculate expiration for TTL (matching JWT expiration)
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+        // Save the new refresh token to the collection
+        await this.refreshTokenModel.create({
+            userId: user._id,
+            token: tokens.refreshToken,
+            expiresAt: expiresAt
+        });
+
+        return tokens;
     }
 
     private async generateTokens(userId: string, name: string, email: string, role: string) {

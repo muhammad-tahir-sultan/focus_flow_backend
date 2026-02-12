@@ -18,8 +18,6 @@ export class User {
     @Prop({ required: true, enum: ['user', 'admin'], default: 'user' })
     role: string;
 
-    @Prop({ required: false })
-    refreshToken?: string;
 
     @Prop({ type: [String], default: [] })
     dailyChecklist: string[];
