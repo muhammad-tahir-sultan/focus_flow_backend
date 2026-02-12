@@ -11,7 +11,7 @@ export class ChallengeService {
         @InjectModel(ChallengeEntry.name) private challengeEntryModel: Model<ChallengeEntryDocument>,
     ) { }
 
-    async getTodayEntry(userId: string): Promise<ChallengeEntry> {
+    async getTodayEntry(userId: string): Promise<ChallengeEntryDocument> {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -67,7 +67,7 @@ export class ChallengeService {
         };
     }
 
-    async updateDailyLog(userId: string, taskCode: string, completed: boolean, value = '', note = ''): Promise<ChallengeEntry> {
+    async updateDailyLog(userId: string, taskCode: string, completed: boolean, value = '', note = ''): Promise<ChallengeEntryDocument> {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -86,10 +86,11 @@ export class ChallengeService {
         const completedCount = entry.taskLogs.filter(log => log.completed).length;
         entry.isFullyCompleted = completedCount >= this.TOTAL_TASKS_COUNT;
 
-        return (entry as any).save();
+        entry.markModified('taskLogs');
+        return entry.save();
     }
 
-    async updateTaskStatus(userId: string, task: string, completed: boolean): Promise<ChallengeEntry> {
+    async updateTaskStatus(userId: string, task: string, completed: boolean): Promise<ChallengeEntryDocument> {
         return this.updateDailyLog(userId, task, completed);
     }
 }
