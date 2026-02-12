@@ -14,10 +14,11 @@ export class RefreshToken {
     @Prop({ required: true })
     expiresAt: Date;
 
-    // This is the TTL index
-    // MongoDB will automatically delete the document when current time > expiresAt
-    @Prop({ type: Date, expires: 0, default: Date.now })
-    ttlIndex: Date;
+    @Prop({ default: false })
+    isRevoked: boolean;
+
+    @Prop({ type: Date })
+    revokedAt?: Date;
 }
 
 export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

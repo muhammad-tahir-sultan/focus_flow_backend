@@ -50,8 +50,27 @@ export class AuthService {
     async refreshTokens(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
         // Find the token in our collection
         const storedToken = await this.refreshTokenModel.findOne({ token: refreshToken });
+
         if (!storedToken) {
-            throw new ForbiddenException('Invalid or expired refresh token');
+            throw new ForbiddenException('Invalid refresh token');
+        }
+
+        // If revoked, check if it's within the grace period (30 seconds)
+        if (storedToken.isRevoked) {
+            const now = new Date();
+            const revokedAt = storedToken.revokedAt || new Date(0);
+            const diff = (now.getTime() - revokedAt.getTime()) / 1000;
+
+            if (diff > 30) {
+                // Potential reuse attack or genuine expiration after rotation
+                throw new ForbiddenException('Refresh token has been reused and grace period expired');
+            }
+
+            // Allow returning the same user tokens if we are in grace period?
+            // Actually, in grace period, we should probably return a success or the user
+            // But if we are here, it means a previous request already rotated this.
+            // To be safe and simple, let's just allow it to proceed and rotate AGAIN, 
+            // or find the user and generate fresh ones.
         }
 
         const userId = await this.verifyRefreshToken(refreshToken);
@@ -61,8 +80,11 @@ export class AuthService {
             throw new ForbiddenException('User not found');
         }
 
-        // Remove the old token after it's been used (rotating refresh tokens)
-        await this.refreshTokenModel.deleteOne({ _id: storedToken._id });
+        // Instead of deleting, we revoke it with a timestamp
+        await this.refreshTokenModel.updateOne(
+            { _id: storedToken._id },
+            { isRevoked: true, revokedAt: new Date() }
+        );
 
         return this.generateAndSaveTokens(user);
     }
