@@ -9,7 +9,7 @@ export class ChallengeController {
 
     @Get()
     async getChallengeProgress(@Request() req) {
-        const userId = req.user.userId;
+        const userId = req.user._id;
         return this.challengeService.getChallengeData(userId);
     }
 
@@ -21,7 +21,7 @@ export class ChallengeController {
         @Body('value') value?: string,
         @Body('note') note?: string
     ) {
-        const userId = req.user.userId;
+        const userId = req.user._id;
         return this.challengeService.updateDailyLog(userId, task, completed, value, note);
     }
 }

@@ -13,7 +13,7 @@ export class ChallengeService {
 
     async getTodayEntry(userId: string): Promise<ChallengeEntryDocument> {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setUTCHours(0, 0, 0, 0);
 
         let entry = await this.challengeEntryModel.findOne({
             userId: new Types.ObjectId(userId),
@@ -46,7 +46,7 @@ export class ChallengeService {
         const userObjectId = new Types.ObjectId(userId);
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 60);
-        startDate.setHours(0, 0, 0, 0);
+        startDate.setUTCHours(0, 0, 0, 0);
 
         const entries = await this.challengeEntryModel.find({
             userId: userObjectId,
@@ -69,7 +69,7 @@ export class ChallengeService {
 
     async updateDailyLog(userId: string, taskCode: string, completed: boolean, value = '', note = ''): Promise<ChallengeEntryDocument> {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setUTCHours(0, 0, 0, 0);
 
         const entry = await this.getTodayEntry(userId);
 
