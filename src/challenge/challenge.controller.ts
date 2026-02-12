@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Query, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { ChallengeService } from './challenge.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -10,14 +10,6 @@ export class ChallengeController {
     @Get()
     async getChallengeProgress(@Request() req) {
         const userId = req.user.userId;
-        // Get stats for the user
-        // Return:
-        // 1. Today's entry (tasks completed)
-        // 2. 60-day history (for heatmap/consistency graph)
-        // 3. Current streak
-
-        // I need to implement a comprehensive method in service or call multiple.
-        // Let's call a new method `getChallengeData`.
         return this.challengeService.getChallengeData(userId);
     }
 
@@ -25,9 +17,11 @@ export class ChallengeController {
     async toggleTask(
         @Request() req,
         @Body('task') task: string,
-        @Body('completed') completed: boolean
+        @Body('completed') completed: boolean,
+        @Body('value') value?: string,
+        @Body('note') note?: string
     ) {
         const userId = req.user.userId;
-        return this.challengeService.updateTaskStatus(userId, task, completed);
+        return this.challengeService.updateDailyLog(userId, task, completed, value, note);
     }
 }

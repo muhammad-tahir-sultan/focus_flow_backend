@@ -5,7 +5,7 @@ import { ChallengeEntry, ChallengeEntryDocument } from './schemas/challenge.sche
 
 @Injectable()
 export class ChallengeService {
-    private readonly TOTAL_TASKS_COUNT = 8; // Number of tasks in the list
+    private readonly TOTAL_TASKS_COUNT = 8;
 
     constructor(
         @InjectModel(ChallengeEntry.name) private challengeEntryModel: Model<ChallengeEntryDocument>,
@@ -24,7 +24,7 @@ export class ChallengeService {
             entry = await this.challengeEntryModel.create({
                 userId: new Types.ObjectId(userId),
                 date: today,
-                completedTasks: [],
+                taskLogs: [],
                 isFullyCompleted: false,
             });
         }
@@ -45,7 +45,7 @@ export class ChallengeService {
     async getProgress(userId: string): Promise<any> {
         const userObjectId = new Types.ObjectId(userId);
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 60); // 2 months lookback
+        startDate.setDate(startDate.getDate() - 60);
         startDate.setHours(0, 0, 0, 0);
 
         const entries = await this.challengeEntryModel.find({
@@ -54,13 +54,7 @@ export class ChallengeService {
         }).sort({ date: 1 });
 
         const totalDays = 60;
-        // Count days where at least one task was done for consistency? Or fully completed?
-        // User asked for "progress bar that will track analytics based on daily entries... when one point is completed means as ticked, then after 2 months what will be achieved"
-        // "record it 2 months consistency".
-        // I interpret this as consistently showing up.
-        // Let's track days with ANY activity vs FULL completion.
-
-        const activeDays = entries.filter(e => e.completedTasks.length > 0).length;
+        const activeDays = entries.filter(e => e.taskLogs.some(log => log.completed)).length;
         const perfectDays = entries.filter(e => e.isFullyCompleted).length;
 
         return {
@@ -68,33 +62,34 @@ export class ChallengeService {
             totalDays,
             activeDays,
             perfectDays,
-            consistencyPercentage: (activeDays / totalDays) * 100, // Show consistency
+            consistencyPercentage: (activeDays / totalDays) * 100,
             completionPercentage: (perfectDays / totalDays) * 100
         };
     }
 
-    async updateTaskStatus(userId: string, task: string, completed: boolean): Promise<ChallengeEntry> {
+    async updateDailyLog(userId: string, taskCode: string, completed: boolean, value = '', note = ''): Promise<ChallengeEntry> {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const updateQuery = completed
-            ? { $addToSet: { completedTasks: task } }
-            : { $pull: { completedTasks: task } };
+        const entry = await this.getTodayEntry(userId);
 
-        const entry = await this.challengeEntryModel.findOneAndUpdate(
-            { userId: new Types.ObjectId(userId), date: today },
-            updateQuery,
-            { new: true, upsert: true }
-        );
+        const logIndex = entry.taskLogs.findIndex(log => log.taskCode === taskCode);
 
-        // Update isFullyCompleted
-        const isFullyCompleted = entry.completedTasks.length >= this.TOTAL_TASKS_COUNT;
-
-        if (entry.isFullyCompleted !== isFullyCompleted) {
-            entry.isFullyCompleted = isFullyCompleted;
-            await entry.save();
+        if (logIndex > -1) {
+            entry.taskLogs[logIndex].completed = completed;
+            entry.taskLogs[logIndex].value = value;
+            entry.taskLogs[logIndex].note = note;
+        } else {
+            entry.taskLogs.push({ taskCode, completed, value, note });
         }
 
-        return entry;
+        const completedCount = entry.taskLogs.filter(log => log.completed).length;
+        entry.isFullyCompleted = completedCount >= this.TOTAL_TASKS_COUNT;
+
+        return (entry as any).save();
+    }
+
+    async updateTaskStatus(userId: string, task: string, completed: boolean): Promise<ChallengeEntry> {
+        return this.updateDailyLog(userId, task, completed);
     }
 }

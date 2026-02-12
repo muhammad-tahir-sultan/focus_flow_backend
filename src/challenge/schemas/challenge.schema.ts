@@ -3,16 +3,31 @@ import { Document, Types } from 'mongoose';
 
 export type ChallengeEntryDocument = ChallengeEntry & Document;
 
+@Schema({ _id: false })
+class TaskLog {
+  @Prop({ required: true })
+  taskCode: string;
+
+  @Prop({ default: '' })
+  value: string; // e.g., "100" or "10 sets"
+
+  @Prop({ default: '' })
+  note: string; // e.g., "Did 3 sets of 30, 20, 20..."
+
+  @Prop({ default: false })
+  completed: boolean;
+}
+
 @Schema({ timestamps: true })
 export class ChallengeEntry {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
   @Prop({ required: true })
-  date: Date; // Store as ISO date string usually, or Date object. Best to store normalized to start of day.
+  date: Date;
 
-  @Prop({ type: [String], default: [] })
-  completedTasks: string[];
+  @Prop({ type: [TaskLog], default: [] })
+  taskLogs: TaskLog[];
 
   @Prop({ default: false })
   isFullyCompleted: boolean;
@@ -20,5 +35,4 @@ export class ChallengeEntry {
 
 export const ChallengeEntrySchema = SchemaFactory.createForClass(ChallengeEntry);
 
-// Index for unique entry per user per day
 ChallengeEntrySchema.index({ userId: 1, date: 1 }, { unique: true });
