@@ -9,8 +9,8 @@ export class User {
     @Prop({ required: true, unique: true })
     email: string;
 
-    @Prop({ required: true })
-    passwordHash: string;
+    @Prop({ required: false })
+    passwordHash?: string;
 
     @Prop({ required: true })
     name: string;
@@ -18,6 +18,11 @@ export class User {
     @Prop({ required: true, enum: ['user', 'admin'], default: 'user' })
     role: string;
 
+    @Prop({ required: false, unique: true, sparse: true })
+    googleId?: string;
+
+    @Prop({ required: false })
+    avatar?: string;
 
     @Prop({ type: [String], default: [] })
     dailyChecklist: string[];
@@ -29,6 +34,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', async function () {
     const user = this as UserDocument;
     if (!user.isModified('passwordHash')) return;
+    if (!user.passwordHash) return;
     const salt = await bcrypt.genSalt(10);
     user.passwordHash = await bcrypt.hash(user.passwordHash, salt);
 });

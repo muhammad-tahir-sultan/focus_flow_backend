@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-token.schema';
+import { GoogleStrategy } from './google.strategy';
 
 @Module({
     imports: [
@@ -28,7 +29,7 @@ import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-token.schema
         ]),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
+    providers: [AuthService, JwtStrategy, GoogleStrategy],
     exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule { }

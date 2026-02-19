@@ -91,7 +91,8 @@ export class AuthService {
 
     private async validateUser(email: string, pass: string): Promise<UserDocument> {
         const user = await this.userModel.findOne({ email });
-        if (!user) {
+
+        if (!user || !user.passwordHash) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
@@ -114,14 +115,38 @@ export class AuthService {
         }
     }
 
-    private async generateAndSaveTokens(user: UserDocument): Promise<{ accessToken: string; refreshToken: string }> {
+    async validateGoogleUser(profile: any): Promise<UserDocument> {
+        const { id, displayName, emails, photos } = profile;
+        const email = emails[0].value;
+        const avatar = photos && photos.length > 0 ? photos[0].value : null;
+
+        let user = await this.userModel.findOne({ email });
+
+        if (!user) {
+            user = new this.userModel({
+                googleId: id,
+                email: email,
+                name: displayName,
+                avatar: avatar,
+                role: 'user',
+                dailyChecklist: [],
+            });
+            await user.save();
+        } else if (!user.googleId) {
+            user.googleId = id;
+            if (!user.avatar && avatar) user.avatar = avatar;
+            await user.save();
+        }
+
+        return user;
+    }
+
+    async generateAndSaveTokens(user: UserDocument): Promise<{ accessToken: string; refreshToken: string }> {
         const tokens = await this.generateTokens(user._id.toString(), user.name, user.email, user.role);
 
-        // Calculate expiration for TTL (matching JWT expiration)
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+        expiresAt.setDate(expiresAt.getDate() + 7);
 
-        // Save the new refresh token to the collection
         await this.refreshTokenModel.create({
             userId: user._id,
             token: tokens.refreshToken,
