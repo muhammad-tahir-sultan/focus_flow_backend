@@ -14,12 +14,12 @@ export class LifeSystemController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    return this.lifeSystemService.getHistory(req.user.userId, startDate, endDate);
+    return this.lifeSystemService.getHistory(req.user._id.toString(), startDate, endDate);
   }
 
   @Get(':date')
   getByDate(@Param('date') date: string, @Req() req: any) {
-    return this.lifeSystemService.getByDate(req.user.userId, date);
+    return this.lifeSystemService.getByDate(req.user._id.toString(), date);
   }
 
   @Put(':date')
@@ -28,6 +28,6 @@ export class LifeSystemController {
     @Body() dto: UpdateLifeSystemDto,
     @Req() req: any,
   ) {
-    return this.lifeSystemService.updateByDate(req.user.userId, date, dto);
+    return this.lifeSystemService.updateByDate(req.user._id.toString(), date, dto);
   }
 }
