@@ -20,6 +20,7 @@ import { AiToolModule } from './ai-tool/ai-tool.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChallengeModule } from './challenge/challenge.module';
+import { LifeSystemModule } from './life-system/life-system.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ChallengeModule } from './challenge/challenge.module';
     EbayBusinessModule,
     AiToolModule,
     ChallengeModule,
+    LifeSystemModule,
   ],
   controllers: [AppController],
   providers: [AppService],
